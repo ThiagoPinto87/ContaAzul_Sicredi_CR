@@ -44,6 +44,9 @@ relatorio_consolidado.xlsx
 # O relatório final de importação (o '*' é um coringa para a data)
 CR_-_Importacao_*.xlsx
 
+#Icone da Cáliber
+*.ico
+
 
 # ===================================================================
 # 5. Arquivos de Configuração de IDE/Editor
