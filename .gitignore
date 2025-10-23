@@ -1,0 +1,65 @@
+# ===================================================================
+# 1. Arquivos de Cache e Bytecode do Python
+# ===================================================================
+# Pasta de cache que o Python cria
+__pycache__/
+
+# Arquivos de bytecode compilados
+*.pyc
+*.pyo
+*.pyd
+
+
+# ===================================================================
+# 2. Ambientes Virtuais (O MAIS IMPORTANTE)
+# ===================================================================
+# Nunca envie suas bibliotecas para o Git.
+# O arquivo 'requirements.txt' é usado para isso.
+venv/
+env/
+.venv/
+.env/
+
+
+# ===================================================================
+# 3. Arquivos Gerados pelo PyInstaller
+# ===================================================================
+# A pasta 'dist' contém seu .exe final. 
+# É uma má prática colocar executáveis no Git.
+dist/
+
+# A pasta 'build' contém todos os arquivos temporários da compilação.
+build/
+
+# O arquivo .spec é a "receita" gerada pelo PyInstaller.
+*.spec
+
+
+# ===================================================================
+# 4. Arquivos de Dados (Saída da Automação)
+# ===================================================================
+# O relatório consolidado intermediário
+relatorio_consolidado.xlsx
+
+# O relatório final de importação (o '*' é um coringa para a data)
+CR_-_Importacao_*.xlsx
+
+
+# ===================================================================
+# 5. Arquivos de Configuração de IDE/Editor
+# ===================================================================
+# Visual Studio Code
+.vscode/
+
+# PyCharm
+.idea/
+
+
+# ===================================================================
+# 6. Arquivos de Sistema Operacional
+# ===================================================================
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
