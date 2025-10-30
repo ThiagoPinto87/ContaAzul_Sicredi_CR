@@ -5,6 +5,7 @@ import arquivo_importacao
 #---- 1º ETAPA ----
 # Combinar arquivos
 print("Iniciando a combinação de arquivos...")
+print('\nCRCASI - Versão 1.01\n')
 
 def executar_combinar_arquivos():
     try:
@@ -55,9 +56,38 @@ def deletar_arquivo_relatorio_consolidado():
 
 deletar_arquivo_relatorio_consolidado()
 
+def deletar_arquivo_relatorio_titulos():
+
+    caminho_downloads = os.path.join(os.path.expanduser("~"), "Downloads")
+    arquivo_relatorio_titulos = os.path.join(caminho_downloads, "relatorioTitulos.xls")
+
+    try:
+        if os.path.exists(arquivo_relatorio_titulos):
+            os.remove(arquivo_relatorio_titulos)
+            print(f"Arquivo '{arquivo_relatorio_titulos}' deletado com sucesso.")
+        else:
+            print(f"Arquivo '{arquivo_relatorio_titulos}' não encontrado para deleção.")
+    except Exception as e:
+        print(f"Erro ao deletar o arquivo '{arquivo_relatorio_titulos}': {e}")
+
+deletar_arquivo_relatorio_titulos()
+
+def deletar_arquivo_fileExport():
+
+    caminho_downloads = os.path.join(os.path.expanduser("~"), "Downloads")
+    arquivo_fileExport = os.path.join(caminho_downloads, "fileExport.csv")
+
+    try:
+        if os.path.exists(arquivo_fileExport):
+            os.remove(arquivo_fileExport)
+            print(f"Arquivo '{arquivo_fileExport}' deletado com sucesso.")
+        else:
+            print(f"Arquivo '{arquivo_fileExport}' não encontrado para deleção.")
+    except Exception as e:
+        print(f"Erro ao deletar o arquivo '{arquivo_fileExport}': {e}")
+
+deletar_arquivo_fileExport()
+
 print()
 print()
 print("\nProcesso concluído com sucesso!")
-
-#comando para criar o executável:
-#pyinstaller --name="Vidotti_Ferreira_CR_CA_Importacao" --onefile --icon="ÍconeCaliber.ico" --hidden-import=pandas --hidden-import=openpyxl --hidden-import=numpy main.py

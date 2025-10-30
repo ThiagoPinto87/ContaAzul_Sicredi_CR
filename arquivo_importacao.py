@@ -74,10 +74,10 @@ def criar_relatorio_importacao():
         #    errors='coerce' transforma erros (ex: texto) em 'Nulo' (NaN)
         doc_num = pd.to_numeric(df_origem['Nº Doc'], errors='coerce').fillna(0).astype(int)
         
-        # 2. Cria o cada parcelamento levando em conta o cliente
+        # 2. Cria cada parcelamento levando em conta o cliente.
         #    .transform() devolve o valor máximo para todas as linhas daquele cliente
-        doc_max_por_cliente = doc_num.groupby(df_origem['Nome']).transform('max')
-        
+        doc_max_por_cliente = doc_num.groupby(df_origem['Nome']).transform("count")
+      
         # 3. Formata as strings para ter 2 dígitos (ex: 1 -> "01", 24 -> "24")
         parcela_atual_str = doc_num.astype(str).str.zfill(2)
         parcela_max_str = doc_max_por_cliente.astype(str).str.zfill(2)
@@ -92,7 +92,7 @@ def criar_relatorio_importacao():
         txid_str = df_origem['TXID'].astype(str)
         
         # 2. Combina as strings
-        df_novo['Observações'] = 'Nosso Nº: ' + nosso_num_str + ' - Chave PIX: ' + txid_str
+        df_novo['Observações'] = f'Nosso Nº: ' + nosso_num_str + ' - Chave PIX: ' + txid_str
 
         # --- 5. Salvar o Novo Arquivo ---
         print("\nTransformações concluídas. Salvando arquivo final...")
@@ -110,9 +110,13 @@ def criar_relatorio_importacao():
         df_novo['Data de Vencimento'] = pd.to_datetime(df_novo['Data de Vencimento'], errors='coerce').dt.strftime('%d/%m/%Y')
 
         #Alterar o tipo da coluna CNPJ/CPF Cliente/Fornecedor para string
-        df_novo['CNPJ/CPF Cliente/Fornecedor'] = df_novo['CNPJ/CPF Cliente/Fornecedor'].astype(str)
+        df_novo['CNPJ/CPF Cliente/Fornecedor'] = (
+            df_novo['CNPJ/CPF Cliente/Fornecedor']
+            .astype(str)
+            .str.replace('\.0$', '', regex=True)
+            .str.zfill(11)
+        )
 
-                
         # Salva o arquivo Excel sem a coluna de índice do pandas
         df_novo.to_excel(caminho_final, index=False)
         
