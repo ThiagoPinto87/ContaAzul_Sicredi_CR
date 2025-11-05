@@ -54,6 +54,18 @@ def criar_relatorio_importacao():
 
         # --- 4. Aplicar as Transformações (Coluna por Coluna) ---
 
+
+       # Transformação das colunas de data para o formato adequado
+       # Adicionamos dayfirst=True para forçar a leitura de DD/MM/AAAA
+        df_origem['Data Emissão'] = pd.to_datetime(df_origem['Data Emissão'], errors='coerce', dayfirst=True)
+        df_origem['Data Vencimento'] = pd.to_datetime(df_origem['Data Vencimento'], errors='coerce', dayfirst=True)
+
+        # Para garantir que as parcelas sejam "sucessivas", ordenamos
+        # pelo CPF/CNPJ (Identif) e depois pela data de vencimento.
+        print("Ordenando dados por CPF/CNPJ e Data de Vencimento...")
+        df_origem = df_origem.sort_values(by=['Identif', 'Data Vencimento'])
+
+
         # Renomeações diretas
         df_novo['Data de Competência'] = df_origem['Data Emissão']
         df_novo['Data de Vencimento'] = df_origem['Data Vencimento']
@@ -68,21 +80,43 @@ def criar_relatorio_importacao():
         df_novo['Categoria'] = "Prestação de Serviços - Honorários Advocatícios"
         df_novo['Centro de Custo'] = "Previdenciário"
 
-        # --- Transformação "Descrição" (f-string complexa) ---
-        # Ex: "Parcela 01/24"
-        # 1. Garante que 'Nº Doc' é numérico para podermos usar 'max'
-        #    errors='coerce' transforma erros (ex: texto) em 'Nulo' (NaN)
-        doc_num = pd.to_numeric(df_origem['Nº Doc'], errors='coerce').fillna(0).astype(int)
+        # # --- Transformação "Descrição" (f-string complexa) ---
+        # # Ex: "Parcela 01/24"
+        # # 1. Garante que 'Nº Doc' é numérico para podermos usar 'max'
+        # #    errors='coerce' transforma erros (ex: texto) em 'Nulo' (NaN)
+        # doc_num = pd.to_numeric(df_origem['Nº Doc'], errors='coerce').fillna(0).astype(int)
         
-        # 2. Cria cada parcelamento levando em conta o cliente.
-        #    .transform() devolve o valor máximo para todas as linhas daquele cliente
-        doc_max_por_cliente = doc_num.groupby(df_origem['Nome']).transform("count")
+        # # 2. Cria cada parcelamento levando em conta o cliente.
+        # #    .transform() devolve o valor máximo para todas as linhas daquele cliente
+        # doc_max_por_cliente = doc_num.groupby(df_origem['Nome']).transform("count")
       
-        # 3. Formata as strings para ter 2 dígitos (ex: 1 -> "01", 24 -> "24")
-        parcela_atual_str = doc_num.astype(str).str.zfill(2)
-        parcela_max_str = doc_max_por_cliente.astype(str).str.zfill(2)
+        # # 3. Formata as strings para ter 2 dígitos (ex: 1 -> "01", 24 -> "24")
+        # parcela_atual_str = doc_num.astype(str).str.zfill(2)
+        # parcela_max_str = doc_max_por_cliente.astype(str).str.zfill(2)
         
-        # 4. Combina tudo na f-string (formato de string do pandas)
+        # # 4. Combina tudo na f-string (formato de string do pandas)
+        # df_novo['Descrição'] = 'Parcela ' + parcela_atual_str + '/' + parcela_max_str
+
+
+        # --- Transformação "Descrição" (Lógica de Parcela Sequencial) ---
+        # O objetivo é criar "Parcela XX/YY" para cada CPF (Identif)
+        print("Calculando parcelas sequenciais por CPF...")
+        
+        # 1. Define a chave de agrupamento (CPF/CNPJ)
+        grupo_cpf = df_origem.groupby('Identif')
+        
+        # 2. Calcula o NÚMERO TOTAL de parcelas (YY) para cada CPF
+        #    .transform('count') aplica a contagem total do grupo a todas as linhas
+        total_parcelas = grupo_cpf['Identif'].transform('count')
+        parcela_max_str = total_parcelas.astype(str).str.zfill(2)
+
+        # 3. Calcula o NÚMERO ATUAL da parcela (XX) de forma sequencial
+        #    .cumcount() cria um contador (0, 1, 2...) dentro de cada grupo
+        #    (Respeita a ordem do .sort_values() que fizemos antes)
+        parcela_atual = grupo_cpf.cumcount() + 1 # +1 para começar em 1, não em 0
+        parcela_atual_str = parcela_atual.astype(str).str.zfill(2)
+
+        # 4. Combina tudo
         df_novo['Descrição'] = 'Parcela ' + parcela_atual_str + '/' + parcela_max_str
 
         # --- Transformação "Observações" (f-string simples) ---
@@ -105,6 +139,12 @@ def criar_relatorio_importacao():
         ]
         df_novo = df_novo[ordem_final_colunas]
 
+        
+        # # Altera os tipos de dados das colunas de data para o formato DD/MM/AAAA
+        # df_novo['Data de Competência'] = pd.to_datetime(df_novo['Data de Competência'], errors='coerce').dt.strftime('%d/%m/%Y')
+        # df_novo['Data de Vencimento'] = pd.to_datetime(df_novo['Data de Vencimento'], errors='coerce').dt.strftime('%d/%m/%Y')
+        
+        
         # Altera os tipos de dados das colunas de data para o formato DD/MM/AAAA
         df_novo['Data de Competência'] = pd.to_datetime(df_novo['Data de Competência'], errors='coerce').dt.strftime('%d/%m/%Y')
         df_novo['Data de Vencimento'] = pd.to_datetime(df_novo['Data de Vencimento'], errors='coerce').dt.strftime('%d/%m/%Y')
