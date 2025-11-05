@@ -21,5 +21,9 @@ pyinstaller --name="Vidotti_Ferreira_CR_CA_Importacao" --onefile --icon="ÍconeC
 ```
 
 ## Melhorias
-
 - Combater homonimos (Neste caso, sugiro perguntar ao usuário validar o CPF antes de criar o arquivo de importação, caso não seja o CPF do cliente, solicitar a ele que digite o CPF correto do cliente.);
+
+## Relatório de fixação de bug's e aprimoramento:
+### 04/11/25
+- Corrigido os erros de datas de vencimento, emissão e competencia que estavam puxando a data no formato americano, para isso, usei o `dayfirst=True`;
+- Corrigido a contagem de parcelas em ordem crescente usando como base o CPF;
